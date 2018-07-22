@@ -54,7 +54,7 @@ app.get('/',(req ,res)=>{
 //         }
 // ]
 
-
+//index route (where all articles reside)
 Article.find({}, (err ,articles)=>{
 
     if(err){
@@ -71,7 +71,7 @@ Article.find({}, (err ,articles)=>{
 
  
 })
-//Add Route
+//Add Article Route
 app.get('/articles/add',function(req,res){
     res.render('add_articles',{
         title:'add article'
@@ -80,6 +80,7 @@ app.get('/articles/add',function(req,res){
 
 });
 
+// add article submitting form data to db
 app.post('/articles/add' ,function(req, res){
   
   console.log('Form submitted');
@@ -104,6 +105,77 @@ app.post('/articles/add' ,function(req, res){
     //     title:'add article'
     // });
 })
+
+//get  single article
+app.get('/article/:id',function(req,res){
+Article.findById(req.params.id,function(err,article){
+    // console.log(article);
+    // return;
+    res.render('article',{
+        article:article
+    });
+     
+})
+
+})
+
+// Edit article route
+app.get('/article/edit/:id',function(req,res){
+    Article.findById(req.params.id,function(err,article){
+        // console.log(article);
+        // return;
+        res.render('edit_article',{
+        
+            article : article
+        });
+         
+    })
+    
+    })
+
+//saving Edit Article
+// add article submitting form data to db
+app.post('/article/edit/:id' ,function(req, res){
+  
+    console.log('Form submitted');
+    console.log(req.params.id)
+    let article= {};
+    article.title = req.body.title;
+    article.author = req.body.author;
+    article.body = req.body.body;
+let query={ _id:req.params.id}
+console.log(query);
+    Article.update(query,article,function(err){
+        if(err){
+            console.log(err);
+            return;
+        }else{
+            console.log('Redirecting.........')
+            res.redirect('/');
+            
+        }
+    });
+   
+      // res.render('add_articles',{
+      //     title:'add article'
+      // });
+  })
+
+//deleting Article
+
+app.delete('/article/:id' ,function(req,res){
+    let query = { _id:req.params.id}
+
+    Article.remove(query,function(err){
+if(err){
+    console.log(err);
+}
+res.send('success')
+
+    })
+});
+
+
 
 app.listen(3000,()=>{
 console.log('app running successfully on port 3000');
