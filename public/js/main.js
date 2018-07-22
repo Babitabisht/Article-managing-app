@@ -7,7 +7,7 @@ const id=$target.attr('data-id');
 $.ajax({
 
 type:'DELETE' ,
-url : '/article/'+id ,
+url : '/articles/'+id ,
 success:function(respone){
     alert('Deleting Article');
     window.location.href='/'
