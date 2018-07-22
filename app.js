@@ -1,7 +1,10 @@
 const express=require('express');
 const path =require('path');
 const mongoose =require('mongoose');
-const bodyParser=require('body-parser')
+const bodyParser=require('body-parser');
+const expressValidator=require('express-validator');
+const flash=require('connect-flash');
+const session=require('express-session');
 
 const app =express();
 
@@ -22,6 +25,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 
+
 let Article=require('./models/articles')
 
 app.set('views',path.join(__dirname,'views'))
@@ -29,6 +33,30 @@ app.set('view engine','pug')
 
 
 app.use(express.static(path.join(__dirname,'public')))
+
+
+
+
+//Express session middleware
+app.use(session({
+    secret: 'keyboard cat',
+    resave: true,
+    saveUninitialized: true,
+  
+  }))
+
+  //Express Messages Middleware
+  app.use(require('connect-flash')());
+app.use(function (req, res, next) {
+  res.locals.messages = require('express-messages')(req, res);
+  next();
+});
+
+//Express code acts as a middleware
+
+app.use(expressValidator());
+
+
 
 //home
 app.get('/',(req ,res)=>{
@@ -83,23 +111,49 @@ app.get('/articles/add',function(req,res){
 // add article submitting form data to db
 app.post('/articles/add' ,function(req, res){
   
-  console.log('Form submitted');
-  let article= new Article();
-  article.title = req.body.title;
-  console.log(req.body.title)
-  article.author = req.body.author;
-  console.log(req.body.author)
-  article.body = req.body.body;
-  article.save(function(err){
-      if(err){
-          console.log(err);
-          return;
-      }else{
-          console.log('Redirecting.........')
-          res.redirect('/');
-          
-      }
-  });
+req.checkBody('title' , 'title is required').notEmpty();
+req.checkBody('author' , 'Author name is required').notEmpty();
+req.checkBody('body' , 'please write an article before submission').notEmpty();
+
+let errors =req.validationErrors();
+
+if(errors){
+    res.render('add_articles',{
+        title:'Add article',
+        errors:errors
+    });
+}
+else{
+    console.log('Form submitted');
+    let article= new Article();
+    article.title = req.body.title;
+    console.log(req.body.title)
+    article.author = req.body.author;
+    console.log(req.body.author)
+    article.body = req.body.body;
+    article.save(function(err){
+        if(err){
+            console.log(err);
+            return;
+        }else{
+          req.flash("success", "Article Added Successfully");
+            console.log('Redirecting.........')
+            res.redirect('/');
+            
+        }
+    });
+}
+
+
+
+
+
+
+
+
+
+
+  
  
     // res.render('add_articles',{
     //     title:'add article'
@@ -150,6 +204,7 @@ console.log(query);
             console.log(err);
             return;
         }else{
+            req.flash('success','article edited successfully !')
             console.log('Redirecting.........')
             res.redirect('/');
             
@@ -171,7 +226,7 @@ if(err){
     console.log(err);
 }
 res.send('success')
-
+req.flash('success','article deleted successfully...!!')
     })
 });
 
