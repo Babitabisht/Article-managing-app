@@ -14,11 +14,24 @@ body
             ul.navbar-nav
                 li.nav-item
                     a.nav-link(href='/') Home
-                li.nav-item
-                    a.nav-link(href='/articles/add') Add Articles
-                li.nav-item
-                    a.nav-link(href='#') Delete Articles
-            
+                if user               
+                    li.nav-item
+                        a.nav-link(href='/articles/add') Add Articles
+           
+            ul.nav.navbar-nav.navbar-right
+                if user
+                    li 
+                        a.nav-link(href="/users/logout") logout
+                else
+                    li
+                        a.nav-link(href="/users/register")  Register
+                    li  
+                        a.nav-link(href="/users/login") Login         
+                
+
+
+               
+                
             
 
     .container

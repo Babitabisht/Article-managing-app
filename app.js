@@ -5,10 +5,12 @@ const bodyParser=require('body-parser');
 const expressValidator=require('express-validator');
 const flash=require('connect-flash');
 const session=require('express-session');
+const passport=require('passport');
+const config=require('./config/database')
 
 const app =express();
 
-mongoose.connect('mongodb://localhost/Articles');
+mongoose.connect(config.database);
 let  db=mongoose.connection;
 
 
@@ -21,12 +23,29 @@ db.on('error',function(err){
     console.log(err);
 })
 
+
+//Express session middleware
+app.use(session({
+    secret: 'keyboard cat',
+    resave: true,
+    saveUninitialized: true,
+  
+  }))
+
+
+//passport config
+require('./config/passport')(passport);
+//Passport Middleware
+app.use(passport.initialize());
+app.use(passport.session());
+  
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 
 
 let Article=require('./models/articles')
+
 
 app.set('views',path.join(__dirname,'views'))
 app.set('view engine','pug')
@@ -36,14 +55,11 @@ app.use(express.static(path.join(__dirname,'public')))
 
 
 
+    
 
-//Express session middleware
-app.use(session({
-    secret: 'keyboard cat',
-    resave: true,
-    saveUninitialized: true,
-  
-  }))
+
+
+
 
   //Express Messages Middleware
   app.use(require('connect-flash')());
@@ -58,13 +74,25 @@ app.use(expressValidator());
 
 
 
+
+
+
 let articles = require('./routes/articles') ;
 app.use('/articles',articles);
 
+let  users=require('./routes/users');
+app.use('/users',users);
 
 
 
-
+app.get('*' , function(req ,res ,next){
+    res.locals.user=req.user || null;
+    console.log(req.user);
+    console.log('printing user');
+    console.log(res.locals.user);
+    
+    next();
+    })
 
 //home
 app.get('/',(req ,res)=>{
