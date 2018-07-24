@@ -5,7 +5,9 @@ block content
     h5 written by #{author}
     p=article.body
     hr
+   
     if user
-        if user.id ==article.author
+       
+        if user.id==article.author
             a.btn.btn-secondary.m-2(href="/articles/edit/"+article._id) Edit
             a.btn.btn-danger.delete_article(href="#",data-id=article._id) Delete

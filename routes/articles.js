@@ -10,8 +10,10 @@
 
  //Add Article Route
 router.get('/add',ensureAuthenticated,function(req,res){
+    console.log('This is user :'+req.user);
     res.render('add_articles',{
-        title:'add article'
+        title:'add article' ,
+        user:req.user
     });
      
 
@@ -66,9 +68,11 @@ Article.findById(req.params.id,function(err,article){
     User.findById(article.author , function(err,user){
 // console.log(article);
     // return;
+    console.log(user.name)
     res.render('article',{
         article:article,
-        author:user.name
+        author:user.name,
+        user:req.user //added later by me//check it out //problem is here
     });
 
     })
